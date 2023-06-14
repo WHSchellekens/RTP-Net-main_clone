@@ -175,10 +175,11 @@ def train(config_file, msg_queue=None):
     :param msg_queue: message queue to export runtime message to integrated system
     :return: None
     """
+    # check if CUDA is available and if the configuration file exists
     assert torch.cuda.is_available(), 'CUDA is not available! Please check nvidia driver!'
     assert os.path.isfile(config_file), 'Config not found: {}'.format(config_file)
 
-    # load config file
+    # load the configuration file and assigns it to the variable cfg.
     cfg = load_module_from_disk(config_file)
     cfg = cfg.cfg
 
@@ -188,12 +189,12 @@ def train(config_file, msg_queue=None):
     cfg.general.save_dir = os.path.join(root_dir, cfg.general.save_dir)
     print(cfg.general.save_dir)
 
-    # control randomness during training
+    # control randomness during training for reproducibility
     np.random.seed(cfg.general.seed)
     torch.manual_seed(cfg.general.seed)
     torch.cuda.manual_seed(cfg.general.seed)
 
-    # clean the existing folder if not continue training
+    # clean the existing folder when training is stopped, if it exists
     if cfg.general.resume_epoch < 0 and os.path.isdir(cfg.general.save_dir):
         sys.stdout.write("Found non-empty save dir.\n"
                          "Type 'yes' to delete, 'no' to continue: ")
@@ -222,22 +223,25 @@ def train(config_file, msg_queue=None):
 
     sampler = EpochConcateSampler(dataset, cfg.train.epochs)
 
+    # create a data loader for the dataset with custom sampling and worker initialization
     data_loader = DataLoader(dataset, sampler=sampler, batch_size=cfg.train.batchsize,
                              num_workers=cfg.train.num_threads, pin_memory=True, worker_init_fn=worker_init)
 
-    # define network
+    # define the network architecture using the specified network module
     gpu_ids = list(range(cfg.general.num_gpus))
 
     net_module = importlib.import_module('network.' + cfg.net.name)
     net = net_module.SegmentationNet(dataset.num_modality(), cfg.dataset.num_classes)
     max_stride = [16, 16, 16]
+    
+    # initialize the network with kaiming initialization and move it to GPU
     vnet_kaiming_init(net)
     net = nn.parallel.DataParallel(net, device_ids=gpu_ids)
     net = net.cuda()
 
     assert np.all(np.array(cfg.dataset.crop_size) % np.array(max_stride) == 0), 'crop size not divisible by max stride'
 
-    # training optimizer
+    # define optimizer using the specified optimizer name and parameters from the configuration file
     opt = getattr(torch.optim, cfg.train.optimizer.name)(
         [{'params': net.parameters(), 'initial_lr': cfg.train.lr}],
         lr=cfg.train.lr, **cfg.train.optimizer.params
@@ -250,6 +254,7 @@ def train(config_file, msg_queue=None):
     else:
         last_save_epoch, batch_start = 0, 0
 
+    # create a learning rate scheduler based on the specified scheduler name and parameters
     scheduler = getattr(torch.optim.lr_scheduler, cfg.train.lr_scheduler.name+"LR")(
         optimizer=opt, **cfg.train.lr_scheduler.params)
 
@@ -266,6 +271,7 @@ def train(config_file, msg_queue=None):
 
         begin_t = time.time()
 
+        # loads the input crops, masks, and filenames from the data loader
         crops, masks, filenames = data_iter.next()
 
         crops, masks = crops.cuda(), masks.cuda()
@@ -273,12 +279,13 @@ def train(config_file, msg_queue=None):
         # clear previous gradients
         opt.zero_grad()
 
-        # network forward
+        # perform a forward pass through the network
         outputs = net(crops)
 
         # the epoch idx of model
         epoch_idx = batch_idx * cfg.train.batchsize // len(dataset)
 
+        # calculate the losses using the specified loss functions and weights
         loss_func_list = []
         if 'Dice' in cfg.loss.name:
             from loss.MultiDiceLoss import MultiDiceLoss
@@ -300,7 +307,7 @@ def train(config_file, msg_queue=None):
 
         losses, train_loss = calculate_loss(loss_func_list, outputs, masks, cfg.loss.loss_weight)
 
-        # backward propagation
+        # perform backward propagation and update the weights
         train_loss.backward()
 
         # update weights
@@ -321,6 +328,7 @@ def train(config_file, msg_queue=None):
             batch_losses=[]
             plot_progress(cfg, batches, all_tr_losses)
 
+        # save checkpoints at specified intervals
         if epoch_idx != 0 and (epoch_idx % cfg.train.save_epochs == 0):
             if last_save_epoch != epoch_idx:
                 save_checkpoint(net, opt, epoch_idx, batch_idx, cfg, config_file, max_stride, dataset.num_modality())
@@ -328,7 +336,7 @@ def train(config_file, msg_queue=None):
 
 
 def main():
-
+    """entry point of the script"""
     long_description = "UII RTP-Net Train Engine"
 
     parser = argparse.ArgumentParser(description=long_description)

@@ -1,5 +1,5 @@
 from easydict import EasyDict as edict
-from md_segmentation3d.utils.vseg_helpers import AdaptiveNormalizer, FixedNormalizer
+# from md_segmentation3d.utils.vseg_helpers import AdaptiveNormalizer, FixedNormalizer
 import numpy as np
 
 __C = edict()
@@ -7,7 +7,7 @@ cfg = __C
 
 
 ##################################
-# general parameters
+####### GENERAL PARAMETERS #######
 ##################################
 
 __C.general = {}
@@ -34,7 +34,7 @@ __C.general.seed = 1
 
 
 ##################################
-# data set parameters
+####### DATASET PARAMETERS #######
 ##################################
 
 __C.dataset = {}
@@ -80,7 +80,7 @@ __C.dataset.crop_normalizers = [{'modality':'CT', 'mean':40, 'stddev':350, 'clip
 
 
 ####################################
-# training loss
+########## TRAINING LOSS ###########
 ####################################
 
 __C.loss = {}
@@ -110,7 +110,7 @@ __C.loss.dim = 3
 
 
 #####################################
-# net
+################ NET ################
 #####################################
 
 __C.net = {}
@@ -122,7 +122,7 @@ __C.net.name = 'vbnet'
 
 
 ######################################
-# training parameters
+######## TRAINING PARAMETERS #########
 ######################################
 
 __C.train = {}
@@ -143,7 +143,7 @@ __C.train.lr = 1e-4
 ##### ���� Step            ���� step_size, gamma, last_epoch
 ##### ���� MultiStep       ���� milestones, gamma, last_epoch
 ##### ���� Exponential     ���� gamma, last_epoch
-##### last_epoch���û�����û��������?1��last_epoch��������Ϊ__C.general.resume_epoch
+##### last_epoch���û�����û��������?1��last_epoch��������Ϊ__C.general.resume_epoch
 ##### �������кܶ࣬�Լ�pytorch��ѯ
 __C.train.lr_scheduler = {}
 __C.train.lr_scheduler.name = "Step"
