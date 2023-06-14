@@ -272,7 +272,7 @@ def train(config_file, msg_queue=None):
         begin_t = time.time()
 
         # loads the input crops, masks, and filenames from the data loader
-        crops, masks, filenames = data_iter.next()
+        crops, masks, filenames = next(data_iter)
 
         crops, masks = crops.cuda(), masks.cuda()
 
@@ -340,7 +340,9 @@ def main():
     long_description = "UII RTP-Net Train Engine"
 
     parser = argparse.ArgumentParser(description=long_description)
-    parser.add_argument('-i', '--input', nargs='?', default="./code_config.py",
+    # parser.add_argument('-i', '--input', nargs='?', default="./code_config.py",
+    #                     help='volumetric segmentation3d train config file')
+    parser.add_argument('-i', '--input', nargs='?', default="./config.py",
                         help='volumetric segmentation3d train config file')
     args = parser.parse_args()
     train(args.input)
