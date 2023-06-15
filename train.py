@@ -1,6 +1,6 @@
 from __future__ import print_function
 from builtins import input
-from imp import reload
+from importlib import reload
 import argparse
 import importlib
 import os
@@ -18,6 +18,8 @@ import matplotlib.pyplot as plt
 from utils.tools import  *
 from utils.dataset import SegmentationDataset
 from network.vbnet import SegmentationNet, vnet_kaiming_init, vnet_focal_init
+from comet_ml import Experiment
+from comet_ml.integration.pytorch import log_model
 
 
 def worker_init(worker_idx):
@@ -194,6 +196,13 @@ def train(config_file, msg_queue=None):
     torch.manual_seed(cfg.general.seed)
     torch.cuda.manual_seed(cfg.general.seed)
 
+    # initialize Comet for tracking training progress
+    experiment = Experiment(
+        api_key = "7xOfvCpZbXepFuUXEoehda5i6",
+        project_name = "RTP_1",
+        workspace="whschellekens"
+        )
+
     # clean the existing folder when training is stopped, if it exists
     if cfg.general.resume_epoch < 0 and os.path.isdir(cfg.general.save_dir):
         sys.stdout.write("Found non-empty save dir.\n"
@@ -327,6 +336,12 @@ def train(config_file, msg_queue=None):
             batches.append(batch_idx)
             batch_losses=[]
             plot_progress(cfg, batches, all_tr_losses)
+        
+        # log process in Comet
+        log_model(experiment, net, model_name="RTP_Model") # not sure if 'net' is correct
+        experiment.log_parameter(train_loss)
+        experiment.log_parameter(batch_losses)
+        experiment.log_parameter(all_tr_losses)
 
         # save checkpoints at specified intervals
         if epoch_idx != 0 and (epoch_idx % cfg.train.save_epochs == 0):
