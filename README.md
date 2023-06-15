@@ -1,4 +1,18 @@
 # RTP-Net
+**Cloned from Shi et al. Edited by Willem Schellekens**
+
+## Modifications
+- Added comments for more elaboration and better readability
+- Edited deprecated code
+- Fixed bugs in the encryption of the model
+
+## Notes
+To make sure the encryption works, install the pycroptodome package, instead of pycrypto, as the latter is deprecated. Use:
+```
+pip install pycryptopdome
+```
+
+
 
 RTP-Net (v1.1)
 
