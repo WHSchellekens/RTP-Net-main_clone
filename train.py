@@ -323,7 +323,7 @@ def train(config_file, msg_queue=None):
         opt.step()
 
         if epoch_idx != scheduler.last_epoch:
-            scheduler.step(epoch=epoch_idx)
+            scheduler.step()
         
         batch_idx += 1
         batch_duration = time.time() - begin_t
