@@ -152,7 +152,7 @@ class Crypto(object):
         :param key: password
         """
         if key is None:
-            key = "*c!q9Kj*k?2>+5@p"
+            key = b"*c!q9Kj*k?2>+5@p"
         assert len(key) == 16
         self.key = key
         self.mode = AES.MODE_CFB
