@@ -9,6 +9,8 @@ import time
 import shutil
 import numpy as np
 import easydict
+from comet_ml import Experiment
+from comet_ml.integration.pytorch import log_model
 import torch
 import torch.nn as nn
 from torch.backends import cudnn
@@ -18,8 +20,6 @@ import matplotlib.pyplot as plt
 from utils.tools import  *
 from utils.dataset import SegmentationDataset
 from network.vbnet import SegmentationNet, vnet_kaiming_init, vnet_focal_init
-from comet_ml import Experiment
-from comet_ml.integration.pytorch import log_model
 
 
 def worker_init(worker_idx):
@@ -338,10 +338,11 @@ def train(config_file, msg_queue=None):
             plot_progress(cfg, batches, all_tr_losses)
         
         # log process in Comet
+        experiment.set_name("Test run 1")
         log_model(experiment, net, model_name="RTP_Model") # not sure if 'net' is correct
-        experiment.log_parameter(train_loss)
-        experiment.log_parameter(batch_losses)
-        experiment.log_parameter(all_tr_losses)
+        experiment.log_parameter("training loss", train_loss)
+        experiment.log_parameter("batch losses", batch_losses)
+        experiment.log_parameter("combined training losses", all_tr_losses)
 
         # save checkpoints at specified intervals
         if epoch_idx != 0 and (epoch_idx % cfg.train.save_epochs == 0):
