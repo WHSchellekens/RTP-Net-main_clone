@@ -338,11 +338,11 @@ def train(config_file, msg_queue=None):
             plot_progress(cfg, batches, all_tr_losses)
         
         # log process in Comet
-        experiment.set_name("Test run 3")
-        log_model(experiment, net, model_name="RTP_Model") # not sure if 'net' is correct
+        experiment.set_name("Test run 5")
+        # log_model(experiment, net, model_name="RTP_Model") # not sure if 'net' is correct but it seems to work
         experiment.log_parameter("training loss", train_loss)
         # experiment.log_parameter("batch losses", batch_losses)
-        experiment.log_parameter("combined training losses", all_tr_losses)
+        # experiment.log_parameter("combined training losses", all_tr_losses)
 
 
         # save checkpoints at specified intervals
