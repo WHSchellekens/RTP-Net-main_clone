@@ -339,10 +339,12 @@ def train(config_file, msg_queue=None):
         
         # log process in Comet
         experiment.set_name("Test run 1")
-        log_model(experiment, net, model_name="RTP_Model") # not sure if 'net' is correct
-        experiment.log_parameter("training loss", train_loss)
-        experiment.log_parameter("batch losses", batch_losses)
-        experiment.log_parameter("combined training losses", all_tr_losses)
+        log_model(experiment, net, model_name="RTP_Model") # not sure if 'net' is correct       
+        params = {"training loss":float(train_loss),
+                  "batch losses":float(batch_losses),
+                  "combined training losses":float(all_tr_losses),
+                  }
+        experiment.log_parameters(params)
 
         # save checkpoints at specified intervals
         if epoch_idx != 0 and (epoch_idx % cfg.train.save_epochs == 0):
