@@ -181,6 +181,10 @@ def train(config_file, msg_queue=None):
     assert torch.cuda.is_available(), 'CUDA is not available! Please check nvidia driver!'
     assert os.path.isfile(config_file), 'Config not found: {}'.format(config_file)
 
+    # pick GPU
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"] = "2"
+
     # load the configuration file and assigns it to the variable cfg.
     cfg = load_module_from_disk(config_file)
     cfg = cfg.cfg
