@@ -40,7 +40,7 @@ __C.general.seed = 1
 __C.dataset = {}
 
 # the number of classes
-__C.dataset.num_classes = 2
+__C.dataset.num_classes = 4
 
 # the resolution on which segmentation is performed
 __C.dataset.spacing = [5, 5, 5]
@@ -97,7 +97,8 @@ __C.loss.loss_weight = [1, 1, 1]
 
 # the weight for each class including background class
 # weights will be normalized
-__C.loss.obj_weight = [1, 1]
+#!! length must equal '__C.dataset.num_classes' above !!
+__C.loss.obj_weight = [1, 1, 1, 1] 
 
 # the gamma parameter in focal loss
 __C.loss.focal_gamma = 2
@@ -139,18 +140,18 @@ __C.train.num_threads = 0
 # the learning rate
 __C.train.lr = 1e-4
 
-##### ���� CosineAnnealing ���� T_max,eta_min,last_epoch
-##### ���� Step            ���� step_size, gamma, last_epoch
-##### ���� MultiStep       ���� milestones, gamma, last_epoch
-##### ���� Exponential     ���� gamma, last_epoch
+##### CosineAnnealing T_max,eta_min,last_epoch
+##### Step            step_size, gamma, last_epoch
+##### MultiStep       milestones, gamma, last_epoch
+##### Exponential     gamma, last_epoch
 ##### last_epoch���û�����û��������?1��last_epoch��������Ϊ__C.general.resume_epoch
 ##### �������кܶ࣬�Լ�pytorch��ѯ
 __C.train.lr_scheduler = {}
 __C.train.lr_scheduler.name = "Step"
 __C.train.lr_scheduler.params = {"step_size": 500, "gamma": 0.1, "last_epoch": -1}
 
-##### ���� Adam           ���� betas=(0.9, 0.999), eps=1e-8, weight_decay=0, amsgrad=False
-##### ���� SGD            ���� momentum=0, dampening=0, weight_decay=0, nesterov=False
+##### Adam           betas=(0.9, 0.999), eps=1e-8, weight_decay=0, amsgrad=False
+##### SGD            momentum=0, dampening=0, weight_decay=0, nesterov=False
 ##### �������кܶ࣬�Լ�pytorch��ѯ
 __C.train.optimizer = {}
 __C.train.optimizer.name = "Adam"
