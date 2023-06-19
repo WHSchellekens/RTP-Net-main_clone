@@ -39,7 +39,7 @@ def kaiming_weight_init(m, bn_std=0.02):
 
 
 def vnet_kaiming_init(net):
-    # initialize the network weights using the Kaiming initialization method.
+    # initialize the network weights using the Kaiming initialization method
     net.apply(kaiming_weight_init)
 
 
@@ -232,6 +232,7 @@ class PreBlock(nn.Module):
     # initial downsample block
     # module that applies an initial downsampling to the input. It includes a 3D 
     # convolutional layer, batch normalization, and activation
+    # [NOT IN vbnet.py]
 
     def __init__(self, in_channels, out_channels, elu):
         super(PreBlock, self).__init__()
@@ -247,6 +248,7 @@ class PreBlock(nn.Module):
 class PostBlock(nn.Module):
     # module that performs the final upsampling and concatenation with the skip connection
     # it includes a transposed 3D
+    # [NOT IN vbnet.py]
     def __init__(self, in_channels, out_channels, elu):
         super(PostBlock, self).__init__()
         self.up_conv = nn.ConvTranspose3d(in_channels, out_channels, kernel_size=2, stride=2)
@@ -261,6 +263,7 @@ class PostBlock(nn.Module):
 class SegmentationNet(nn.Module):
     # the number of convolutions in each layer corresponds
     # to what is in the actual prototxt, not the intent
+    # [INCLUDES PreBlock AND PostBlock, WHICH ARE NOT IN vbnet.py]
     def __init__(self, in_channels, out_channels, elu=False):
         super(SegmentationNet, self).__init__()
         self.pre_block = PreBlock(in_channels, in_channels, elu)

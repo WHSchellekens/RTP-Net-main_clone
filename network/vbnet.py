@@ -5,7 +5,8 @@ import torch.nn.functional as F
 
 
 def gaussian_weight_init(m, conv_std=0.01, bn_std=0.01):
-
+    # initialize the weights of convolutional and batch normalization layers using 
+    # Gaussian distributions with specified standard deviations
     classname = m.__class__.__name__
     if 'Conv3d' in classname or 'ConvTranspose3d' in classname:
         m.weight.data.normal_(0, conv_std)
@@ -17,7 +18,8 @@ def gaussian_weight_init(m, conv_std=0.01, bn_std=0.01):
 
 
 def kaiming_weight_init(m, bn_std=0.02):
-
+    # initialize the weights of convolutional and batch normalization layers using 
+    # the Kaiming initialization method
     classname = m.__class__.__name__
     if 'Conv3d' in classname or 'ConvTranspose3d' in classname:
         version_tokens = torch.__version__.split('.')
@@ -35,20 +37,24 @@ def kaiming_weight_init(m, bn_std=0.02):
         if m.bias is not None:
             m.bias.data.zero_()
 
-def vnet_kaiming_init(net):
 
+def vnet_kaiming_init(net):
+    # initialize the network weights using the Kaiming initialization method
     net.apply(kaiming_weight_init)
 
 
 def vnet_focal_init(net, obj_p):
-
+    # initializes the network weights using Gaussian distributions and sets the bias 
+    # of the output layer based on the initial predicted probability for objects
     net.apply(gaussian_weight_init)
     # initialize bias such as the initial predicted prob for objects are at obj_p.
     net.out_block.conv2.bias.data[1] = -np.log((1 - obj_p) / obj_p)
 
 
 def passthrough(x, **kwargs):
+    # placeholder for dropout layers
     return x
+
 
 def ELUCons(elu, nchan):
     if elu:
@@ -56,9 +62,11 @@ def ELUCons(elu, nchan):
     else:
         return nn.ReLU(inplace=True)
 
-# normalization between sub-volumes is necessary
-# for good performance
+
+# normalization between sub-volumes is necessary for good performance
 class ContBatchNorm3d(nn.modules.batchnorm._BatchNorm):
+    # a subclass that performs batch normalization on 3D input tensors. Overrides the
+    # 'forward' function to handle 5D input tensors
     def _check_input_dim(self, input):
         if input.dim() != 5:
             raise ValueError('expected 5D input (got {}D input)'
@@ -72,6 +80,8 @@ class ContBatchNorm3d(nn.modules.batchnorm._BatchNorm):
 
 
 class LUConv_bottle(nn.Module):
+    # module that applies a series of convolutional, batch normalization, and activation 
+    # layers, with a bottleneck structure
     def __init__(self, nchan, elu, act):
         super(LUConv_bottle, self).__init__()
         self.act = act
@@ -96,7 +106,9 @@ class LUConv_bottle(nn.Module):
             out = self.bn3(self.conv3(out))
         return out
 
+
 class LUConv(nn.Module):
+    # simplified version of 'LUConv_bottle' without the bottleneck structure.
     def __init__(self, nchan, elu, act):
         super(LUConv, self).__init__()
         self.act = act
@@ -113,6 +125,8 @@ class LUConv(nn.Module):
 
 
 def _make_nConv(nchan, depth, elu, use_bottle):
+    # function that creates a sequence of LUConv or LUConv_bottle modules based on the 
+    # specified number of channels, depth, and other parameters
     layers = []
     for i in range(depth):
         if use_bottle:
@@ -129,6 +143,8 @@ def _make_nConv(nchan, depth, elu, use_bottle):
 
 
 class InputTransition(nn.Module):
+    # module that performs the initial transition from the input to the network. It 
+    # consists of a 3D convolutional layer, batch normalization, and activation function
     def __init__(self, inChans, elu):
         super(InputTransition, self).__init__()
         self.conv1 = nn.Conv3d(inChans, 16, kernel_size=3, padding=1)
@@ -147,6 +163,9 @@ class InputTransition(nn.Module):
 
 
 class DownTransition(nn.Module):
+    # module that represents a downsampling path in the network. It includes a 3D 
+    # convolutional layer with stride 2 for downsampling, followed by batch normalization, 
+    # activation, and a series of LUConv or LUConv_bottle modules
     def __init__(self, inChans, nConvs, elu, dropout=False, use_bottle=False):
         super(DownTransition, self).__init__()
         outChans = 2*inChans
@@ -166,6 +185,10 @@ class DownTransition(nn.Module):
 
 
 class UpTransition(nn.Module):
+    # module that represents an upsampling path in the network. It includes a transposed 3D
+    # convolutional layer with stride 2 for upsampling, followed by batch normalization, 
+    # activation, dropout, concatenation with the skip connection, and a series of LUConv or
+    # LUConv_bottle modules
     def __init__(self, inChans, outChans, nConvs, elu, dropout=False, use_bottle=False):
         super(UpTransition, self).__init__()
         self.up_conv = nn.ConvTranspose3d(inChans, outChans // 2, kernel_size=2, stride=2)
@@ -187,6 +210,9 @@ class UpTransition(nn.Module):
 
 
 class OutputTransition(nn.Module):
+    # module that performs the final transition from the network to the output segmentation
+    # map. It consists of two 3D convolutional layers, batch normalization, activation, and
+    # softmax function
     def __init__(self, inChans, outChans, elu):
         super(OutputTransition, self).__init__()
         self.conv1 = nn.Conv3d(inChans, outChans, kernel_size=3, padding=1)
@@ -206,6 +232,7 @@ class OutputTransition(nn.Module):
 class SegmentationNet(nn.Module):
     # the number of convolutions in each layer corresponds
     # to what is in the actual prototxt, not the intent
+    # [DOES NOT INCLUDE PreBlock AND PostBlock, WHICH ARE IN vbbnet.py]
     def __init__(self, in_channels, out_channels, elu=False):
         super(SegmentationNet, self).__init__()
         self.in_tr = InputTransition(in_channels, elu)
