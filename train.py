@@ -376,7 +376,12 @@ def main():
     #                     help='volumetric segmentation3d train config file')
     parser.add_argument('-i', '--input', nargs='?', default="./config.py",
                         help='volumetric segmentation3d train config file')
+    parser.add_argument("--base", default=None) # Name of my PC, used to differentiate between different paths.
     args = parser.parse_args()
+    if args.base == "gauss":
+        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+        os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+
     train(args.input)
 
 
