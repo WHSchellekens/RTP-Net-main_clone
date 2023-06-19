@@ -39,8 +39,8 @@ def worker_init(worker_idx):
 def load_module_from_disk(pyfile):
     """
     load python module from disk dynamically
-    :param pyfile     python file
-    :return a loaded network module
+    :param pyfile: python file
+    :return: a loaded network module
     """
     dirname = os.path.dirname(pyfile)
     basename = os.path.basename(pyfile)
@@ -59,8 +59,10 @@ def load_module_from_disk(pyfile):
 
 
 def save_checkpoint(net, opt, epoch_idx, batch_idx, cfg, config_file, max_stride, num_modality):
-    """ save model and parameters into a checkpoint file (.pth)
-
+    """ 
+    save model and parameters into a checkpoint file (.pth) based on the epoch index
+    save the model parameters and optimizer state into separate files, and copy the 
+    configuration file into the checkpoint folder
     :param net: the network object
     :param opt: the optimizer object
     :param epoch_idx: the epoch index
@@ -102,8 +104,8 @@ def save_checkpoint(net, opt, epoch_idx, batch_idx, cfg, config_file, max_stride
 
 
 def load_checkpoint(epoch_idx, net, opt, save_dir):
-    """ load network parameters from directory
-
+    """
+    load network parameters and optimizer state from corresonding checkpoint files in directory
     :param epoch_idx: the epoch idx of model to load
     :param net: the network object
     :param opt: the optimizer object
@@ -129,7 +131,7 @@ def load_checkpoint(epoch_idx, net, opt, save_dir):
 
 def plot_progress(cfg, batch_idx, all_tr_losses):
     """
-    Should probably be improved
+    Willem: Not really used because of Comet, but I'll leave it here
     :return:
     """
     try:
@@ -155,6 +157,15 @@ def plot_progress(cfg, batch_idx, all_tr_losses):
 
 
 def calculate_loss(loss_func_list, output, mask, weights):
+    """
+    calculate the losses and total loss given a list of loss functions, network output, 
+    target mask, and weights
+    :param loss_func_list: list of loss functions
+    :param output: network output
+    :param mask: target mask
+    :param weights: weights for the different loss functions
+    :return: individual losses and the total loss
+    """
     assert len(loss_func_list) == len(weights)
     losses = []
     total_loss = 0
@@ -171,8 +182,8 @@ def calculate_loss(loss_func_list, output, mask, weights):
 
 
 def train(config_file, msg_queue=None):
-    """ volumetric segmentation training engine
-
+    """ 
+    volumetric segmentation training engine
     :param config_file: the input configuration file
     :param msg_queue: message queue to export runtime message to integrated system
     :return: None
