@@ -63,7 +63,7 @@ class MultiDiceLoss(nn.Module):
         """
         :param input_tensor: network output tensor
         :param target: ground truth
-        :return: weighted dice loss and a list for all class dice loss, expect background
+        :return: weighted dice loss and a list for all class dice loss, except background
         """
         dice_losses = []
         weight_dice_loss = 0
