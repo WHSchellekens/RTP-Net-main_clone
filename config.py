@@ -98,7 +98,7 @@ __C.loss.loss_weight = [1, 1, 1]
 # the weight for each class including background class
 # weights will be normalized
 #!! length must equal '__C.dataset.num_classes' above !!
-#TODO: fix the error of doubling the length of this halving the loss
+#TODO: fix the error of doubling the length of this halving the loss, probably make it .5's
 __C.loss.obj_weight = [1, 1, 1, 1] 
 
 # the gamma parameter in focal loss
