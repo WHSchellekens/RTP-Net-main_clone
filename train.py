@@ -308,7 +308,7 @@ def train(config_file, msg_queue=None):
         outputs = net(crops)
 
         # calculate Dice coefficient
-        DSC = dice(outputs, masks, num_classes=cfg.dataset.num_classes, reduction='mean')
+        DSC = dice(outputs, masks, num_classes=cfg.dataset.num_classes, average="micro")
 
         # the epoch idx of model
         epoch_idx = batch_idx * cfg.train.batchsize // len(dataset)
