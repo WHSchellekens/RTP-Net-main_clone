@@ -11,6 +11,8 @@ To make sure the encryption works, install the pycroptodome package, instead of 
 ```
 pip install pycryptopdome
 ```
+The training is logged using Comet via [this link](https://www.comet.com/whschellekens/rtp-1)
+
 ##
 
 Original README:
