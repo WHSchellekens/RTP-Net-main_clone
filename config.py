@@ -118,7 +118,7 @@ __C.loss.dim = 3
 __C.net = {}
 
 # the network name
-# 1) VBNet
+# 1) VBNetout of memory. Tried to allocate 648.00 MiB (GPU 0; 10.76 GiB total capacity; 7.97 GiB already allocated; 494.94 MiB free; 9.27 GiB reserved in total by PyTorch) If reserved memory is >> allocated memory try setting max_split_size_mb to avoid fragmenta
 # 2) VBBNet
 __C.net.name = 'vbnet'
 
@@ -133,7 +133,7 @@ __C.train = {}
 __C.train.epochs = 4001
 
 # the number of samples in a batch
-__C.train.batchsize = 6
+__C.train.batchsize = 4
 
 # the number of threads for IO
 __C.train.num_threads = 0
