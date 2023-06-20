@@ -99,7 +99,7 @@ __C.loss.loss_weight = [1, 1, 1]
 # weights will be normalized
 #!! length must equal '__C.dataset.num_classes' above !!
 #TODO: fix the error of doubling the length of this halving the loss, probably make it .5's
-__C.loss.obj_weight = [1, 1, 1, 1] 
+__C.loss.obj_weight = [0.5, 0.5, 0.5, 0.5] 
 
 # the gamma parameter in focal loss
 __C.loss.focal_gamma = 2
@@ -133,7 +133,7 @@ __C.train = {}
 __C.train.epochs = 4001
 
 # the number of samples in a batch
-__C.train.batchsize = 4
+__C.train.batchsize = 5
 
 # the number of threads for IO
 __C.train.num_threads = 0
