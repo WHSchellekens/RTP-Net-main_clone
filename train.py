@@ -15,6 +15,7 @@ import torch
 import torch.nn as nn
 from torch.backends import cudnn
 from torch.utils.data import DataLoader
+from torchmetrics.functional import dice
 import matplotlib
 import matplotlib.pyplot as plt
 from utils.tools import  *
@@ -287,12 +288,6 @@ def train(config_file, msg_queue=None):
         batch_idx = 0
     data_iter = iter(data_loader)
 
-    # log process in Comet
-    experiment.set_name("logging code moved")
-    # log_model(experiment, net, model_name="RTP_Model") # not sure if 'net' is correct but it seems to work
-    experiment.log_metrics({"training loss_": train_loss,
-                            "combined training losses": round(np.mean(metric_dice[category]), 4)}, epoch=epoch)
-
     all_tr_losses = []
     batch_losses = []
     batches = []
@@ -311,6 +306,9 @@ def train(config_file, msg_queue=None):
 
         # perform a forward pass through the network
         outputs = net(crops)
+
+        # calculate Dice coefficient
+        DSC = dice(outputs, masks, num_classes=cfg.dataset.num_classes, reduction='mean')
 
         # the epoch idx of model
         epoch_idx = batch_idx * cfg.train.batchsize // len(dataset)
@@ -357,6 +355,12 @@ def train(config_file, msg_queue=None):
             batches.append(batch_idx)
             batch_losses=[]
             plot_progress(cfg, batches, all_tr_losses)
+
+        # log process in Comet
+        experiment.set_name("dsc logging added")
+        # log_model(experiment, net, model_name="RTP_Model") # not sure if 'net' is correct but it seems to work
+        experiment.log_metrics({"training loss_": train_loss,
+                                "dice score": DSC}, epoch=epoch_idx)
 
         # save checkpoints at specified intervals
         if epoch_idx != 0 and (epoch_idx % cfg.train.save_epochs == 0):
