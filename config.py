@@ -130,7 +130,7 @@ __C.net.name = 'vbnet'
 __C.train = {}
 
 # the number of training epochs
-__C.train.epochs = 4001
+__C.train.epochs = 2001
 
 # the number of samples in a batch
 __C.train.batchsize = 5
