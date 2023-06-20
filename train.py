@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 from utils.tools import  *
 from utils.dataset import SegmentationDataset
 from network.vbnet import SegmentationNet, vnet_kaiming_init, vnet_focal_init
+from torchsummary import summary
 
 
 def worker_init(worker_idx):
@@ -263,6 +264,7 @@ def train(config_file, msg_queue=None):
     vnet_kaiming_init(net)
     net = nn.parallel.DataParallel(net, device_ids=gpu_ids)
     net = net.cuda()
+    # summary(net, (1, 96, 96, 96), 6)
 
     assert np.all(np.array(cfg.dataset.crop_size) % np.array(max_stride) == 0), 'crop size not divisible by max stride'
 
