@@ -1,4 +1,3 @@
 *.pyc
-data/
 __pycache__/
 ctv_model/
