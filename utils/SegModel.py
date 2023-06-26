@@ -42,17 +42,24 @@ class VSegModel(object):
         :param model_dir: model directory
         :return: None
         """
+        
+        # check if directory is valid
         if not os.path.isdir(model_dir):
             raise ValueError('model dir not found: {}'.format(model_dir))
 
+        # retrieve the path of the last checkpoint file (params.pth) from the checkpoints sub-
+        # directory within model_dir
         checkpoint_dir = last_checkpoint(os.path.join(model_dir, 'checkpoints'))
         param_file = os.path.join(checkpoint_dir, 'params.pth')
 
+        # check if param_file exists
         if not os.path.isfile(param_file):
             raise ValueError('param file not found: {}'.format(param_file))
 
-        # load network parameters
+        # load decrypted network parameters using the function in tools.py
         state = load_pytorch_model(param_file)
+        
+        # extract parameters from state and assign them to instance variables
         self.spacing = np.array(state['spacing'], dtype=np.double)
         assert self.spacing.ndim == 1, 'spacing must be 3-dim array'
 
@@ -60,6 +67,8 @@ class VSegModel(object):
 
         self.crop_normalizers = []
         
+        # convert the dictionary representation of each crop normalizer to the appropriate object
+        # type, resulting crop normalizers are appended to the list
         if 'crop_normalizers' in state:
             for crop_normalizer in state['crop_normalizers']:
                 self.crop_normalizers.append(self.__normalizer_from_dict(crop_normalizer))
@@ -108,9 +117,15 @@ class VSegModel(object):
             self.net = net_module.SegmentationNet(self.in_channels, self.out_channels)
         else:
             raise ValueError("Net name should be either '2D_net' or '25D_net'!")
+        
+        # setup the network for parallel execution on multiple GPUs
         self.net = nn.parallel.DataParallel(self.net)
         self.net = self.net.cuda()
+        
+        # load the state dictionary's saved network parameters into the network
         self.net.load_state_dict(state['state_dict'])
+        
+        # set network to evaluation mode
         self.net.eval()
 
     @staticmethod
