@@ -232,11 +232,11 @@ def main():
     parser = argparse.ArgumentParser(description=long_description,
                                      formatter_class=RawTextHelpFormatter)
 
-    parser.add_argument('-i', '--input', type=str, help='input folder/file for intensity images', default="/data/qingzhou/RTP-Net-main/test.csv")
+    parser.add_argument('-i', '--input', type=str, help='input folder/file for intensity images', default="test.csv")
     parser.add_argument('-m', '--model', type=str, help='pth model path')
     parser.add_argument('-o', '--output', type=str, help='output folder for segmentation')
     parser.add_argument('-n', '--seg_name', default='seg.nii.gz', help='the name of the segmentation result to be saved')
-    parser.add_argument('-g', '--gpu_id', default='5', help='the gpu id to run model')
+    parser.add_argument('-g', '--gpu_id', default='0', help='the gpu id to run model')
     parser.add_argument('--save_image', help='whether to save original image', action="store_true")
     parser.add_argument('--save_single_prob', help='whether to save single prob map', action="store_true")
     args = parser.parse_args()
